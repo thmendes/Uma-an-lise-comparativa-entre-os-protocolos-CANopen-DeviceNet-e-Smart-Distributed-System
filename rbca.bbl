@@ -1,0 +1,97 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{v-1.9.2 }
+
+\bibitem{galloway2013introduction}
+\abntrefinfo{Galloway e Hancke}{GALLOWAY; HANCKE}{2013}
+{GALLOWAY, B.; HANCKE, G.~P. Introduction to industrial control networks.
+\emph{Communications Surveys \& Tutorials, IEEE}, IEEE, v.~15, n.~2, p.
+  860--880, 2013.}
+
+\bibitem{BRADY1998}
+\abntrefinfo{Brady}{BRADY}{1998}
+{BRADY, J. Networking with devicenet.
+\emph{The Computer Applications Journal}, 1998.
+Circuit Cellar Incorporated.}
+
+\bibitem{WEGCANopen2010}
+\abntrefinfo{WEG}{WEG}{2010}
+{WEG, E. \emph{Comunica{\c{c}}{\~a}o CANopen}. 2010.
+  \url{http://ecatalog.weg.net/files/wegnet/WEG-plc300-comunicacao-canopen-10000849433-manual-portugues-br.pdf}.
+[Online; Acesso em: 19 de julho de 2014].}
+
+\bibitem{WEGDeviceNet2008}
+\abntrefinfo{WEG}{WEG}{2008}
+{WEG, E. \emph{Comunica{\c{c}}{\~a}o DeviceNet}. 2008.
+  \url{http://ecatalog.weg.net/files/wegnet/1-2195.pdf}.
+[Online; Acesso em: 20 de julho de 2014].}
+
+\bibitem{honeywell1995}
+\abntrefinfo{Honeywell}{HONEYWELL}{1995}
+{HONEYWELL. \emph{SDS specification}. 1995.
+Honeywell Inc.Microswitch Division, GS 052 103 ... GS 052 107. 1995.}
+
+\bibitem{BOSH1991}
+\abntrefinfo{Bosh}{BOSH}{1991}
+{BOSH, R. \emph{CAN specification version 2.0}. 1991.
+Rober Bousch GmbH, Postfach. 1991.}
+
+\bibitem{CORRIGAN2008}
+\abntrefinfo{Corrigan}{CORRIGAN}{2008}
+{CORRIGAN, S. \emph{Introduction to the Controller Area Network (CAN)}. Dallas,
+  Texas: [s.n.], 2008.
+Texas Instruments, Application Report, SLOA101A.}
+
+\bibitem{barbosa2003rede}
+\abntrefinfo{Barbosa}{BARBOSA}{2003}
+{BARBOSA, L. R.~G. Rede can.
+\emph{Escola de Engenharia da UFMG. Universidade Federal de Minas Gerais, Belo
+  Horizonte}, 2003.}
+
+\bibitem{BOTERENBROOD2000}
+\abntrefinfo{Boterenbrood}{BOTERENBROOD}{2000}
+{BOTERENBROOD, H. \emph{CANopen high-level protocol for CAN-bus}. 2000.
+NIKHEF, Amsterdam. 2000.}
+
+\bibitem{NationalInstuments2013}
+\abntrefinfo{National}{NATIONAL}{2013}
+{NATIONAL, I. \emph{The Basic of CANopen}. 2013.
+  \url{http://www.ni.com/white-paper/14162/en/}.
+[Online; Acesso em: 19 de julho de 2014].}
+
+\bibitem{microchip1}
+\abntrefinfo{Technology}{TECHNOLOGY}{2006}
+{TECHNOLOGY, I. M. \emph{dsPIC30F3014, dsPIC30F4013 Data Sheet}. 2006.
+  \url{http://ww1.microchip.com/downloads/en/devicedoc/70138c.pdf}.
+[Online; Acesso em: 26 de novembro de 2015].}
+
+\bibitem{microchip2}
+\abntrefinfo{Technology}{TECHNOLOGY}{2010}
+{TECHNOLOGY, I. M. \emph{MCP2551 - High-Speed CAN Transceiver}. 2010.
+  \url{http://ww1.microchip.com/downloads/en/DeviceDoc/21667f.pdf}.
+[Online; Acesso em: 26 de novembro de 2015].}
+
+\bibitem{Maximintegrated1}
+\abntrefinfo{Products}{PRODUCTS}{2014}
+{PRODUCTS, I. M.~I. \emph{Low-Power, Slew-Rate-Limited RS-485/RS-422
+  Transceivers}. 2014.
+  \url{http://datasheets.maximintegrated.com/en/ds/MAX1487-MAX491.pdf}.
+[Online; Acesso em: 26 de novembro de 2015].}
+
+\bibitem{Texas1}
+\abntrefinfo{Instruments}{INSTRUMENTS}{2014}
+{INSTRUMENTS, I. T. \emph{MAX232x Dual EIA-232 Drivers/Receivers}. 2014.
+  \url{http://www.ti.com/lit/ds/symlink/max232.pdf}.
+[Online; Acesso em: 26 de novembro de 2015].}
+
+\bibitem{lian2002network}
+\abntrefinfo{Lian, Moyne e Tilbury}{LIAN; MOYNE; TILBURY}{2002}
+{LIAN, F.-L.; MOYNE, W.; TILBURY, D. Network design consideration for
+  distributed control systems.
+\emph{Control Systems Technology, IEEE Transactions on}, IEEE, v.~10, n.~2, p.
+  297--307, 2002.}
+
+\end{thebibliography}

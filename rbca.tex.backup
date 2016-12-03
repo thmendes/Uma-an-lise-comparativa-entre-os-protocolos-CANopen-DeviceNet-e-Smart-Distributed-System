@@ -1,0 +1,816 @@
+\documentclass{RBCA}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage[brazilian]{babel}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+%\usepackage{epsfig}
+\usepackage{hyperref}
+\hypersetup{
+  setpagesize  = false,
+  colorlinks   = true,    % Colours links instead of ugly boxes
+  urlcolor     = blue,    % Colour for external hyperlinks
+  linkcolor    = black,   % Colour of internal links
+  citecolor    = black    % Colour of citations
+}
+\urlstyle{same}
+\usepackage{setspace}
+\usepackage[num,bibjustif,recuo=0.8cm]{abntex2cite} 
+% Referências e citações (em formato numérico, justificado e recuo de 0.8cm) utilizando o padrão ABNT
+\citebrackets[] % coloca os números das citações entre [ ]
+
+\usepackage{geometry}
+\geometry{papersize={190mm,290mm},total={160mm,230mm}}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{booktabs} % To thicken table lines
+\usepackage{multirow}
+\usepackage{mwe}
+\usepackage{subfig}
+\usepackage{eurosym}
+\usepackage{latexsym}
+\usepackage{calc} 
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{eurosym}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{enumerate}
+\usepackage{times, color}       % pacote para usar fonte Adobe Times e cores
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{etoolbox}
+\input{macros/bugcaption}
+%==========================================================================
+
+%==========================================================================
+% Informações sobre a edição da revista: estes dados serão completados
+% pelos editores da RBCA
+%==========================================================================
+\RBCAvolume{7}
+\RBCAnumero{1}
+\RBCApaginas{xx-xx}
+\RBCAmes{abr}
+\RBCAano{2015}
+\setcounter{page}{1} % página inicial do artigo
+
+\usepackage[ruled,vlined,linesnumbered,portuguese]{algorithm2e}
+\SetKwFor{Para}{para}{fa\c{c}a}{fim para}
+\SetKwBlock{Inicio}{in\'{i}cio}{fim}
+\SetKwFor{ParaCada}{para cada}{fa\c{c}a}{fim para cada}
+
+
+%\newcommand{\comment}[1]{}
+
+
+
+
+\title{Uma análise comparativa entre os protocolos \textit{CANopen}, \textit{DeviceNet} e  \textit{Smart Distributed System}}
+
+\author{Thiago Mendes da Silva\inst{1}, Marco Aurélio
+Spohn\inst{1}, Adriano Sanick Padilha\inst{1}}
+
+\author
+{
+ Thiago Mendes da Silva
+   \footnote{Universidade Federal da Fronteira Sul - Curso de Ciência da Computação - Chapecó/SC\\
+   \texttt{\{th.thiago.mendes@gmail.com\},\{marco.spohn,padilha@uffs.edu.br\}}}
+ \and
+Marco Aurélio Spohn
+   \footnotemark[1]
+ \and
+Adriano Sanick Padilha   
+   \footnotemark[1]
+   \\ \\ \textbf{http://dx.doi.org/10.5335/rbca.2015.XXX}}
+}
+
+
+
+
+\begin{document} 
+
+\maketitle
+\thispagestyle{fancy}
+\vspace{6pt}
+
+
+
+\begin{abstract}
+O uso de protocolos de comunicação em redes industriais permite maior controle dos dados e Qualidade de Serviço (QoS) 
+em diversas aplicações. Esse artigo contempla uma análise comparativa de três protocolos de 
+alto nível - CANopen, DeviceNet e Smart Distributed System (SDS) - baseados no padrão Controller Area Network (CAN). 
+Como estudo de caso, realiza-se uma avaliação abrangendo métricas de desempenho que possibilitam acompanhar como cada
+protocolo responde às aplicações alvo. Aborda-se, em conjunto, alguns fundamentos de redes industriais,
+bem como a arquitetura e funcionamento dos protocolos analisados.
+\end{abstract}
+
+
+\begin{keywords}
+Redes de controle industriais.
+\end{keywords}
+
+\vspace{6pt}
+
+\begin{abstractinenglish}
+\emph{The use of communication protocols in industrial networks enables greater control of data and Quality of Service (QoS)
+in various applications. This article includes an analysis of three high level protocols 
+- CANopen, DeviceNet and Smart Distributed System (SDS) - based on the Controller Area Network (CAN) standard.
+We have carried out a performance analysis taking into account some representative performance metrics for assessing how each
+protocol behaves for some target applications. We also address some fundamentals of industrial networks,
+as well as the architecture and operation of the analyzed protocols.}
+\end{abstractinenglish}
+
+\begin{keywordsenglish}
+\emph{Applied computing. Instructions. Journal RBCA.} (Palavras-chave traduzidas para o inglês, em ordem alfabética)
+\end{keywordsenglish}
+
+\section{Introdução}
+
+Redes de controle industriais têm requisitos específicos e métodos de operação diferenciados das redes comerciais e, uma diferença essencial,
+é que redes de controle industriais são conectadas em equipamentos físicos para controlar e monitorar ações e condições do mundo real. 
+Disso resulta um conjunto de requisitos de Qualidade de Serviço (\textit{Quality-of-Service} - QoS) diferente das redes comerciais, 
+uma vez que a rede deve ser determinística e trabalhar em tempo real.
+	
+Uma das diferenças entre as redes industriais e as redes comercias é a arquitetura. Em redes industriais a arquitetura consiste em três ou 
+quatro níveis: a conexão de instrumentos aos controladores acontece em um nível, a conexão entre os controladores em outro nível, a interface 
+homem-máquina ocorre em outro nível e a coleta de dados e a comunicação externa acontece em outro nível. 
+	
+A segurança é outro ponto que difere as duas redes. Devido ao fato de as redes de controle industriais estarem conectadas diretamente a maquinários 
+industriais, falhas no sistema podem causar danos nos equipamentos, causando perda de produção e até perda de vidas. A celeridade com que os dados 
+precisam ser transmitidos, processados e respondidos nas aplicações industriais estabelecem um tempo limite, chegando próximo ao ``instantâneo''. Uma regra é que o tempo de resposta deveria ser menor que o tempo de amostragem dos dados reunidos. O que diferencia das redes comerciais, que por sua vez, não necessitam de um tempo de resposta delimitado. E se necessitam, usualmente utilizam um tempo da ordem de centenas de milissegundos, ou mais.
+	
+Em uma rede industrial, não só os dados precisam ser transmitidos em tempo real, mas também precisam ser transmitidos de forma determinística. 
+Isso significa que deve ser possível prever quando uma resposta a uma transmissão será recebida. Para isso, a latência de um sinal deve ser delimitada
+e ter baixa variância. Usualmente, nos níveis mais baixos da rede, há poucos dados a serem transmitidos, geralmente resultante de uma única medição pelo 
+sistema. 
+	
+Transmissões feitas em redes industriais necessitam tanto de transmissões periódicas quanto de transmissões aperiódicas, como mudanças de estados ou alarmes.
+O período usado para coleta e transmissão dos dados podem variar de dispositivo para dispositivo de acordo com a necessidade de controle de cada um, 
+além de eventos aperiódicos que podem ocorrer a qualquer momento. Para facilitar as transmissões, relógios e contenção de barramento são implementados 
+nos níveis mais baixos das redes industriais para assegurar que todos os dados serão transmitidos em tempo hábil. 
+	
+Nas redes industriais há a necessidade de determinar o momento em que ocorreram transmissões e a ordem dos eventos, especialmente em casos de transmissões 
+aperiódicas. Isso é conseguido usando carimbos de tempo, que são marcadores que guardam informações de quando um evento aconteceu, e relógios sincronizados.
+
+
+
+Há protocolos que garantem a qualidade de serviço que as redes industriais requerem. Esses protocolos aplicam diversas técnicas para manter os dados 
+consistentes, não sofrer interferências externas e garantir a transmissão dos dados. Dentre os protocolos de redes industriais mais representativos estão: CAN, EtherNet/IP, PROFIBUS, PROFINET, 
+INTERBUS, Foundation Fieldbus~\cite{galloway2013introduction}. O protocolo CAN atua nas duas primeiras camadas da rede (física e enlace) e dispõe de um conjunto de recursos que 
+atendem os requisitos de uma rede industrial. Principais recursos são: rápida transmissão e consistência de dados, mecanismos de detecção de erros, 
+robustez, além de oferecer uma boa relação preço/desempenho. Baseados no protocolo CAN, existem três protocolos de referência que atuam na camada de aplicação \cite{BRADY1998}. 
+
+Esse artigo apresenta uma análise comparativa de três protocolos de 
+alto nível - CANopen~\cite{WEGCANopen2010}, DeviceNet~\cite{WEGDeviceNet2008} e Smart Distributed System (SDS)~\cite{honeywell1995} - baseados no padrão \textit{Controller Area Network} (CAN). 
+Como estudo de caso, realiza-se uma avaliação contemplando métricas de desempenho que possibilitam observar como cada
+protocolo responde às aplicações alvo. Aborda-se, em conjunto, alguns fundamentos de redes industriais,
+bem como a arquitetura e funcionamento dos protocolos analisados.
+
+
+
+\section{\textit{Controller Area Network} - CAN}\label{CAN}
+
+\textit{Controller Area Network} (CAN)~\cite{BOSH1991} contempla um protocolo de comunicação serial, definido no padrão ISO 11898, com arquitetura multi-mestre baseada em \textit{broadcast}. O protocolo oferece uma boa relação preço/desempenho, permite transmissão de dados de até 1 Mbits/s e pode ser implementado em sistemas de tempo real; adicionalmente, adota mecanismos robustos de detecção de erros. O CAN também oferece a possibilidade de substituir componentes da rede durante a operação do sistema.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figuras/CAN1}
+    \caption{Arquitetura padrão do CAN.}%~\cite{CORRIGAN2008}}
+    \label{CAN1}
+\end{figure}
+
+A arquitetura definida no ISO 11898 abrange as camadas física e de enlace (ilustração na Figura~\ref{CAN1}).
+O CAN utiliza \textit{Carrier Sense Multiple Access} (CSMA) com detecção de colisão e arbitragem na prioridade da mensagem (CD+AMP):  as colisões são resolvidas através da arbitragem de lógica binária, com base na prioridade pré-programada de cada mensagem (a mensagem com a maior prioridade vence o acesso ao barramento)~\cite{CORRIGAN2008,barbosa2003rede}. Dispositivos CAN possuem identificadores de $11$ bits no padrão ISO 11898 (também chamado de CAN 2.0A) e identificadores de $29$ bits na emenda definida no padrão ISO 11989 (também referenciado como CAN 2.0B)~\cite{CORRIGAN2008,BOSH1991}. 
+
+%\subsection{CAN padrão}\label{CANpadrao}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figuras/CAN2}
+    \caption{CAN 2.0A com identificador de 11 bits.}%~\cite{CORRIGAN2008}}
+    \label{CAN2}
+\end{figure}
+
+Os pacotes de dados no CAN possuem os seguintes campos (ilustração na Figura~\ref{CAN2}):
+\begin{itemize}
+\item SOF: Início de quadro. Único bit dominante. Um bit marca o início da mensagem e é usado para sincronizar no barramento após ficar ocioso.
+\item Identificador: Valor que estabelece a prioridade da mensagem, quanto menor o valor maior a prioridade da mensagem.
+\item RTR: Único bit dominante - nível lógico alto - para pedido de transmissão remota. Todos os nós recebem o pedido, porém o campo Identificador determina o nó específico. A resposta também chega em todos os nós. 
+\item IDE: Único bit dominante que significa que o campo Identificador não segue o padrão estendido.
+\item r0: Bit reservado.
+\item DLC: Dado de 4 bits que contêm o número em bytes do dado que está sendo transmitido.
+\item Dado: Dado da aplicação a ser transmitido que pode chegar até 64 bits.
+\item CRC: Teste de redundância cíclica de 16 bits para detecção de erro.
+\item ACK: Todo nó que receber a mensagem livre de erros substitui o bit recessivo desse campo por um bit dominante. Caso o receptor perceber algum erro, ele deixa o bit como está e descarta a mensagem. O nó transmissor repete a mensagem após a arbitragem das prioridades. ACK possui 2 bits, um para escrita e outro como delimitador. 
+\item EOF: 7 bits que indicam o final do quadro (mensagem) e verificam o erro de bit \textit{stuffing}. 
+\item IFS:  7 bits que indicam o tempo necessário para o controlador mover o quadro (mensagem) para a memória (aplicação).
+\end{itemize}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figuras/CAN3}
+    \caption{CAN 2.0B com identificador de 29 bits.}%~\cite{CORRIGAN2008}}
+    \label{CAN3}
+\end{figure}
+
+O CAN estendido (2.0B) possui os mesmos campos do CAN 2.0A; porém, há algumas adições que são:
+
+\begin{itemize}
+\item SSR: Bit único que substitui o RTR na posição da mensagem como uma área reservada no formato estendido.
+\item IDE:  Bit recessivo que indica a extensão do Identificador com acréscimo de 18 bits.
+\item r1: Bit reservado adicional.
+\end{itemize}
+
+
+A rede CAN utiliza um meio de transmissão onde é avaliada a diferença de tensão entre dois fios (i.e., CANH e CANL). O estado recessivo é mantido por dois resistores de \textit{pull-up} conectados a esses dois fios. Assim, sem que seja transmitida nenhuma informação, a rede receberia um número constante de bits recessivos. Portanto, torna-se necessário um estado lógico diferente para marcar o começo de uma transmissão~\cite{CORRIGAN2008, barbosa2003rede,BOSH1991}.
+	
+O acesso ao barramento é um evento dirigido e ocorre de maneira aleatória; mas, se dois nós tentarem acessar o barramento simultaneamente, o acesso é implementado através da arbitragem lógica não destrutiva, fazendo com que o nó vencedor continue transmitindo a mensagem, sem destruí-la ou corrompê-la~\cite{CORRIGAN2008,barbosa2003rede}.
+
+A atribuição de prioridade às mensagens é o recurso que torna o CAN particularmente atrativo para sistemas em tempo real. Quanto menor for o valor do identificador, maior é a prioridade da mensagem. Caso dois nós tentarem acessar o barramento simultaneamente, caso um deles enviar zero (dominante) e o outro enviar um (recessivo), o primeiro nó ganha acesso ao barramento e completa a mensagem: bits dominantes sempre sobrescrevem bits recessivos no barramento CAN~\cite{CORRIGAN2008}.
+
+Existem quatro tipos de mensagens que podem ser transmitidas no CAN~\cite{CORRIGAN2008}: 
+\begin{enumerate}
+  \item Mensagem de dado: o tipo de mensagem mais comum, que inclui o campo de arbitragem, campo de dado, campo RCR e o campo ACK.
+  \item Mensagem remota: o propósito da mensagem remota é solicitar dado de outro nó da rede. A mensagem remota é similar a mensagem de dado, com a diferença que o campo RTR contém um bit recessivo e o campo de dados é vazio.
+  \item Mensagem de erro: mensagem especial que viola o formato da mensagem CAN. É transmitida quando um nó detecta um erro em uma mensagem. Assim, o transmissor original da mensagem a retransmite.
+  \item Mensagem de sobrecarga: similar à mensagem de erro no quesito formato, sendo transmitida quando um nó fica ocupado. É usada principalmente para fornecer um atraso extra entre mensagens.
+\end{enumerate}
+
+Uma mensagem é considerada sem erro quando o último bit no campo EOF é recebido como bit recessivo livre de erro. Um bit dominante no campo EOF faz o transmissor reenviar a mensagem. O protocolo CAN possui cinco métodos de checagem de erro: três em nível de mensagem e dois em nível de bit. Se uma mensagem falhar em um desses métodos, ela não é aceita e uma mensagem de erro é gerada pelos nós receptores e, como o CAN trabalha em \textit{broadcast}, qualquer nó pode gerar uma mensagem de erro quando perceber algo errado com a mensagem, forçando o transmissor a reenviar a mensagem até que ela seja aceita~\cite{CORRIGAN2008, barbosa2003rede,BOSH1991}.
+	
+
+	
+\section{Protocolo CANopen}\label{CANOPEN}
+
+CANopen é um protocolo de comunicação de alto nível, baseado no protocolo CAN, e padroniza a comunicação entre dispositivos e aplicações da rede. O CANopen trata do endereçamento, roteamento, confiabilidade fim-a-fim, sincronização, padronização e representação dos dados. A camada de aplicação é responsável pela descrição de como configurar, transferir e sincronizar os dispositivos da rede~\cite{BOTERENBROOD2000}.
+
+A rede CANopen deve possuir um mestre, que é responsável por gerenciar a rede. Uma rede pode possuir até $127$ escravos (nós). Todo nó da rede possui uma lista de objetos denominada de dicionário de objetos, que contém objetos de comunicação (COB) responsáveis pela comunicação entre dispositivos da rede. Esses objetos são: Objeto de serviço de dados, responsável pelo acesso direto ao dicionário de objetos de um dispositivo da rede; Objeto de processamento de dados, usado para acessar os dados de um dispositivo; Objeto de emergência, responsável pelo envio de mensagens para indicar a ocorrência de erros no dispositivo; Objeto de sincronização, que permite a um dispositivo enviar uma mensagem de sincronização para toda a rede, periodicamente; Objeto de gerenciamento de rede, para o mestre da rede gerenciar os seus serviços de controle do dispositivo e serviço de controle de erros nos nós da rede~\cite{BOTERENBROOD2000, WEGCANopen2010}.
+
+%\subsection{Mensagem}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figuras/mensagem_completa_CANopen}
+    \caption{Mensagem completa do protocolo CANopen.}
+    \label{CANopen2}
+\end{figure}
+
+O protocolo CANopen utiliza a mensagem padrão do CAN com o campo Identificador dividido em duas partes~\cite{WEGCANopen2010, NationalInstuments2013}: a primeira, representada por quatro bits, é usada para a identificação da função; a segunda, com sete bits, é usada para identificação do nó. A união dessas duas partes mais o campo RTR resulta no Identificador de Objetos de Comunicação (COB-ID), ilustrado na Figura~\ref{CANopen1}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figuras/mensagem_canOPEN}
+    \caption{Campo Identificador (em bits) modificado pelo protocolo CANopen.}
+    \label{CANopen1}
+\end{figure}
+
+\section{Protocolo DeviceNet}\label{DEVICENET}
+
+O protocolo DeviceNet atua nas camadas superiores do protocolo CAN, adotando um modelo produtor-consumidor ele suporta múltiplos modos de comunicação. Utilizando o método de prioridades de mensagens, ele possui métodos de detecção de endereços duplicados e isolamento de nós em caso de erros críticos. O sistema opera com a arquitetura distribuída ponto a ponto, mas também pode ser configurado para operar numa arquitetura mestre-escravo. A rede suporta até 64 dispositivos, endereçados de $0$ a $63$~\cite{WEGDeviceNet2008}.
+
+
+As mensagens numa rede DeviceNet são definidas em dois tipos, I/O (dados de processo) e \textit{explicit} (configuração e parametrização), cada um deles é adequado a um tipo de dado~\cite{WEGDeviceNet2008, BRADY1998}. Os principais tipos de mensagens I/O são: \textit{Polled},  mensagem que o mestre envia solicitando dados para cada um de seus escravos; \textit{Bit-strobe}, mensagem de oito bytes de dados enviada pelo mestre. onde cada bit desses 8 bytes identifica um escravo que, por sua vez, responde ao mestre de acordo com o que foi programado; \textit{Change of state},  mensagem que é enviada somente quando há uma troca de estado ou quando um período de tempo previamente programado é atingido;
+ \textit{Cyclic}, que se tratam de mensagens trocadas em intervalos regulares, independente de haver mudanças de estado ou não em um dispositivo.
+
+Mensagens \textit{explicit} são de uso geral e não prioritário, utilizadas principalmente em tarefas assíncronas tais como configuração e parametrização do equipamento. Uma rede DeviceNet utiliza somente dois tipos de mensagens padronizadas pelo protocolo CAN: a mensagem de dados e a mensagem de erro~\cite{WEGDeviceNet2008}.
+
+O protocolo DeviceNet requer que uma conexão seja estabelecida antes de haver troca de dados, o estabelecimento de conexões é feito com mensagem do tipo \textit{explicit}, e a seguir é usado o tipo de mensagem I/O para a troca de dados, as informações necessárias para que uma conexão seja estabelecida são armazenadas em um arquivo de configuração presente em cada nó da rede~\cite{WEGDeviceNet2008}. 
+
+
+\section{Protocolo \textit{Smart Distributed System} - SDS}\label{SDS}
+
+O protocolo \textit{Smart Distributed System} (SDS) é baseado no protocolo CAN e possui uma arquitetura em três camadas: a camada física, de enlace e a de aplicação. Essa redução de camadas torna o SDS adequado para aplicações de controle de tempo real~\cite{honeywell1995}.
+Os serviços oferecidos pela camada de aplicação são: \textbf{Leitura} de um atributo de um Objeto Embarcado da rede; \textbf{Escrita} de um atributo de um Objeto Embarcado; \textbf{Evento}, para reportar um evento especificado para um Objeto Embarcado; \textbf{Ação},  usado para executar ações especificadas para um Objeto Embarcado; \textbf{Mudança de Estado} para \textit{ON/OFF}, usado para reportar uma mudança de estado de um dispositivo lógico; \textbf{Escrita \textit{ON/OFF}}, para ativar ou desativar um dispositivo lógico da rede; \textbf{Conexão}, usado para estabelecer uma conexão ponto a ponto entre dois dispositivos; \textbf{Canal}, para conexão \textit{multicast} e conexão ponto a ponto bidirecional para a comunicação entre dois ou mais dispositivos da rede~\cite{honeywell1995}.
+
+
+Uma rede SDS é capaz de suportar até 126 dispositivos, endereçados de 0 a 125. As informações necessárias para a execução dos serviços de aplicação são armazenadas em cada dispositivo que, por sua vez, pode filtrar ou ignorar mensagens de um ou vários endereços. A rede possui Componentes Físicos, que podem ter um ou mais Dispositivos e, cada um destes, pode ter um ou mais Objeto Embarcado, como ilustrado na Figura~\ref{SDS1}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{figuras/rede_sds}
+    \caption{Visão geral do endereçamento dos componentes físicos.}%~\cite{honeywell1995}}
+    \label{SDS1}
+\end{figure}
+
+O SDS utiliza o quadro de mensagem do CAN padrão. A partir da mensagem do CAN, o SDS classifica dois tipos de mensagens usadas na rede: Mensagem Curta e Mensagem Longa. Um quadro do protocolo SDS se diferencia do CAN padrão dividindo o campo Identificador de $11$ bits em três partes. Se o bit mais significativo do campo Direção/Prioridade for setado em $1$, significa que o campo de endereço contém o endereço de origem. Se for setado em $0$, significa que o campo de endereço contém o endereço de destino. Consequentemente, mensagens que endereçam o campo com o endereço de destino tem maior prioridade~\cite{honeywell1995}. Os próximos sete bits do Identificador são para o Endereçamento Lógico; assim, uma rede pode suportar até $125$ nós (os nós $126$ e $127$ são reservados pela especificação CAN). Os últimos três bits do campo Identificador são para o Tipo de Serviço que, no tipo de mensagem Curta, são: Mudança de Estado para \textit{ON/OFF} e Escrita \textit{ON/OFF}. O campo RTR não é usado e o campo DLC indica o tamanho do dado transmitido. Para mensagens do tipo curto esse campo é sempre zerado.
+
+
+
+Mensagens Longas, ao contrário das curtas, contêm dados~\cite{honeywell1995}. O campo Direção/Prioridade é definido de acordo com o tipo de serviço presente na mensagem. Para serviços do tipo Leitura, Escrita, Ação, Evento e Conexão, o comportamento do campo Direção/Prioridade é idêntico ao descrito na mensagem do tipo Curta. Para o serviço Canal, o endereço lógico sempre será o endereço de origem e o bit do campo Direção/Prioridade é usado como um segundo nível de prioridade: zero indica alta prioridade e um define baixa prioridade. O campo DLC é usado para indicar o tamanho do dado da mensagem em bytes. O primeiro byte de dados da mensagem é dividido em duas partes: Especificadores de Serviço, com três bits, e Identificador de Objeto Embarcado (EOID), com cinco bits.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figuras/mensagem_curta_SDS}
+    \caption{Mensagem SDS: formato curto.}%~\cite{honeywell1995}}
+    \label{SDS2}
+\end{figure}
+
+
+O campo Especificadores de Serviço consiste em dois subcampos: Pedido/Resposta (dois bits) e Indicador de Fragmentação (um bit). O subcampo Pedido/Resposta especifica se a mensagem é pedido, resposta bem-sucedida, resposta de erro ou esperar resposta. O subcampo Indicador de Fragmentação indica se a mensagem é fragmentada (valor um) ou não fragmentada (valor zero). O campo EOID indica endereços de objetos embarcados específicos em um dispositivo da rede SDS. Um dispositivo pode ter um ou mais objetos embarcados, como ilustarado na Figura~\ref{SDS1}. O segundo byte de dados da mensagem representa o campo Parâmetros de Serviço. Quando o serviço da mensagem é Leitura ou Escrita, o campo representa o identificador do atributo de um objeto embarcado a ser lido ou modificado. Se o serviço da mensagem for Ação ou Evento, o campo representa o identificador da Ação ou Evento, especificados em cada nó da rede. Com essas modificações na mensagem padrão do protocolo CAN, a mensagem possui 6 bytes de dados disponíveis e, caso a mensagem for fragmentada,  a mensagem possuirá quatro bytes de dados, uma vez que dois bytes representarão o número de fragmentações e o tamanho total da mensagem, respectivamente.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figuras/mensagem_longa_sds}
+    \caption{Mensagem SDS: formato longo.}
+    \label{DeviceNet3}
+\end{figure}
+
+\section{Configuração dos protocolos}
+
+Nesta sessão serão abordadas as configurações escolhidas para cada protocolo apresentado anteriormente. Como já foi mencionado, o protocolo CAN atua nas camadas física e de enlace. Os protocolos CANopen, DeviceNet e SDS atuam acima dessas camadas, oferecendo serviços de endereçamento, sincronização, confiabilidade fim-a-fim, padronização e representação dos dados. 
+
+\subsection{Configuração do protocolo CANopen}
+
+O CANopen possui somente a configuração mestre-escravo. O mestre envia uma mensagem de requisição para um escravo, uma interrupção é gerada no nó destino e uma mensagem de resposta é enviada ao mestre da rede. Esse processo é repetido para todos os nós da rede de forma sequencial. Todo o processo está dentro de um laço infinito, conforme descrito nos Algoritmos 1 e 2.
+
+\begin{algorithm}
+\scriptsize
+    %\Inicio{
+    \begin{comment}
+        inicializa $dicionario$ (vetor de dicionário de objetos) com o valores correspondentes de cada objeto\;
+        inicializa $nos$ (vetor de nós da rede) com os identificadores únicos de cada nó\;
+        inicializa $enderecoTx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+        inicializa $enderecoRx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+        inicializa $dado$ (vetor de 8 bytes destinado aos dados) com zero em todos os elementos\;
+        Configura $mascara$ para aceitar qualquer padrão de mensagem\;
+        Configura $filtro$ para receber mensagem de qualquer nó da rede\;
+        Configura $pinos$ do microcontrolador\;
+        \end{comment}
+        \Enqto{$verdadeiro$}{
+            \ParaCada{nó ativo na rede}{
+                $enderecoTx \gets nos[noAtual] + dicionario[processamentoDados]$\;
+                enviaMensagem($enderecoTx,dado$)\; 
+                \Repita{aceitar resposta}{
+                    recebeMensagem($enderecoRx$, $dado$)\;
+                    \uSe{$enderecoRx = enderecoTx$}{
+                        aceitaDado($dado$)\;
+                    }
+                }
+            }
+        }
+        
+    %}
+    \caption{\footnotesize Algoritmo de endereçamento e comunicação do CANopen - \textbf{Mestre}.}
+    \label{alg1}
+\end{algorithm}
+
+\begin{algorithm}
+\scriptsize
+\begin{comment}
+    inicializa $dicionario$ (vetor de dicionário de objetos) com o valores correspondentes de cada objeto\;
+    inicializa $ID$ (identificador do nó) com um valor único na rede\;
+    inicializa $enderecoTx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+    inicializa $enderecoRx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+    inicializa $dado$ (vetor de 8 bytes destinado aos dados) com zero em todos os elementos\;
+\end{comment}   
+    \Inter{$verdadeiro$}{
+        recebeMensagem($enderecoRx, dado$)\;
+        \uSe{mensagem recebida}{
+            \uSe{$(enderecoRx - ID) = dicionario[processamentoDados]$}{
+                $enderecoTx \gets enderecoRx$\;
+                enviaMensagem($enderecoTx, dado$)\;
+            }
+        }
+    }
+    \Inicio{
+        Configura $mascara$ para aceitar qualquer padrão de mensagem\;
+        Configura $filtro$ para receber mensagem somente do mestre\;
+        Configura $pinos$ do microcontrolador\;
+        \Enqto{$verdadeiro$}{
+            $dado \gets $ leSensor()\;
+            tratamentoDado($dado$)\; 
+        }
+        
+    }
+    \caption{\footnotesize Algoritmo de endereçamento e comunicação do CANopen - \textbf{Escravo}.}
+    \label{alg2}
+\end{algorithm}
+
+\subsection{Configuração do protocolo DeviceNet}
+
+A configuração escolhida para o protocolo DeviceNet foi a mestre-escravo, para equiparar à configuração dos outros protocolos. Utilizando mensagens do tipo \textit{Polled}, o protocolo DeviceNet se comporta da seguinte forma: o mestre envia uma mensagem de requisição de dados para um ou mais nós da rede; cada nó da rede verifica se é um alvo do mestre; caso afirmativo, o nó envia uma mensagem de resposta. Posteriormente, o mestre envia uma mensagem de confirmação, fazendo com que o escravo não envie mais a mensagem até receber uma nova mensagem de pedido. O processo continua nesse laço enquanto a rede estiver em funcionamento, como descrito nos Algoritmos 3 e 4.
+
+
+\begin{algorithm}
+\tiny
+  %  \Inicio{
+    \begin{comment}
+        inicializa $alvo$ (vetor de 8 bytes) com os nós alvos pelo mestre\;
+        inicializa $nos$ (vetor de nós da rede) com os identificadores únicos de cada nó\;
+        inicializa $nosAux$ (vetor auxiliar) com zero em todos os elementos\;
+        inicializa $idMestre$ (identificador do nó mestre) com o ID do mestre\;
+        inicializa $enderecoTx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+        inicializa $enderecoRx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+        inicializa $dado$ (vetor de 8 bytes destinado aos dados) com zero em todos os elementos\;
+        inicializa $dadoConfirma$ (vetor de 8 bytes) com 0 em todos os elementos \;
+        inicializa $confirmado$ (campo inteiro) com o valor 2\;
+        Configura $mascara$ para aceitar qualquer padrão de mensagem\;
+        Configura $filtro$ para receber mensagem somente do mestre\;
+        Configura $pinos$ do microcontrolador\;
+        \end{comment}
+        \Enqto{$verdadeiro$}{
+            $enderecoTx \gets idMestre$\;
+            enviaMensagem($enderecoTx, alvo$)\;
+            $controle \gets$ contagem($alvo$)\;
+            $nosAux \gets nos$\;
+            \Enqto{$controle > 0$}{
+                recebeMensagem($enderecoRx, dado$)\;
+                \uSe{mensagem recebida}{
+                    \ParaCada{nó ativo na rede}{
+                        \uSe{$nosAux[noAtual] = enderecoRx$}{
+                            $nosAux[noAtual] \gets 0$\;
+                            $controle --$\;
+                            $dadoConfirma[noAtual] \gets confirmado$
+                            enviaMensagem($enderecoTx, dadoConfirma$)\;
+                        }
+                    }
+                }
+            }
+        }
+ %   }
+    \caption{\footnotesize Algoritmo de endereçamento e comunicação do DeviceNet - \textbf{Mestre}.}
+    \label{alg3}
+\end{algorithm}
+
+\begin{algorithm}
+\tiny
+\begin{comment}
+    inicializa $ID$ (identificador do nó) com um valor único na rede\;
+    inicializa $enderecoTx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+    inicializa $enderecoRx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+    inicializa $dadoTx$ (vetor de 8 bytes destinado aos dados) com zero em todos os elementos\;
+    inicializa $dadoRx$ (vetor de 8 bytes destinado aos dados) com zero em todos os elementos\;
+    \end{comment}
+    \Inter{$verdadeiro$}{
+        recebeMensagem($enderecoRx, dadoRx$);
+        \uSe{$dadoRx[ID] = verdadeiro$}{
+            $enderecoTx \gets ID$\;
+            enviaMensagem($enderecoTx, dadoTx$)\;
+            $confirmacao \gets falso$\;
+            \Enqto{$confirmacao = falso$}{
+                recebeMensagem($enderecoRx, dadoRx$)\;
+                \Se{$dadoRx[ID] = confirmado$}{
+                    $confirmacao \gets verdadeiro$\;
+                }
+                \Senao{
+                    enviaMensagem($enderecoTx, dadoTx$)\;
+                }
+            }
+        }
+    }
+    \Inicio{
+        Configura $mascara$ para aceitar qualquer padrão de mensagem\;
+        Configura $filtro$ para receber mensagem somente do mestre\;
+        Configura $pinos$ do microcontrolador\;
+        \Enqto{$verdadeiro$}{
+            $dadoTx \gets $ leSensor()\;
+            tratamentoDado($dadoTx$)\; 
+        }
+    }
+    \caption{\footnotesize Algoritmo de endereçamento e comunicação do DeviceNet - \textbf{Escravo}.}
+    \label{algo4}
+\end{algorithm}
+
+\subsection{Configuração do protocolo SDS}
+
+Similar ao CANopen, o protocolo SDS tem a configuração mestre-escravo. O mestre envia uma mensagem para um escravo, espera a resposta da mensagem, e envia uma outra mensagem para outro escravo da rede. O processo é realizado até o mestre se comunicar com todos os escravos da rede. O que diferencia o SDS do CANopen é um bit no endereçamento chamado Direção, sendo atribuído valor um a esse bit sempre que o mestre envia uma mensagem de requisição de dados, e valor zero sempre que um escravo for se comunicar com o seu mestre (i.e., responder ao mestre ou enviar uma mensagem de evento). Esse bit no endereçamento é importante porque força as mensagens escravo-mestre terem maior prioridade que as mensagens mestre-escravo. O comportamento do protocolo SDS é descrito nos Algoritmos 5 e 6.
+
+
+\begin{algorithm}
+\scriptsize
+    %\Inicio{
+    \begin{comment}
+        inicializa $funcao$ (vetor de funções) com o valores correspondentes de cada função\;
+        inicializa $nos$ (vetor de nós da rede) com os identificadores únicos de cada nó\;
+        inicializa $enderecoTx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+        inicializa $enderecoRx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+        inicializa $dado$ (vetor de 8 bytes destinado aos dados) com zero em todos os elementos\;
+        Configura $mascara$ para aceitar qualquer padrão de mensagem\;
+        Configura $filtro$ para receber mensagem de qualquer nó da rede\;
+        Configura $pinos$ do microcontrolador\;
+        \end{comment}
+        \Enqto{$verdadeiro$}{
+            \ParaCada{nó ativo na rede}{
+                $enderecoTx \gets nos[noAtual] + funcao[lerDados]$\;
+                $enderecoTx \gets endecoTx + Direcao$\;
+                enviaMensagem($enderecoTx,dado$)\; 
+                \Repita{aceitar resposta}{
+                    recebeMensagem($enderecoRx$, $dado$)\;
+                    \uSe{$enderecoRx = enderecoTx$}{
+                        aceitaDado($dado$)\;
+                    }
+                }
+            }
+        }
+    %}
+    \caption{\footnotesize Algoritmo de endereçamento e comunicação do SDS - \textbf{Mestre}.}
+    \label{algo5}
+\end{algorithm}
+
+\begin{algorithm}
+\scriptsize
+\begin{comment}
+    inicializa $funcao$ (vetor de funções) com o valores correspondentes de cada função\;
+    inicializa $ID$ (identificador do nó) com um valor único na rede\;
+    inicializa $enderecoTx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+    inicializa $enderecoRx$ (campo que recebe endereço do dispositivo + objeto) com zero\;
+    inicializa $dado$ (vetor de 8 bytes destinado aos dados) com zero em todos os elementos\;
+    \end{comment}
+    \Inter{$verdadeiro$}{
+        recebeMensagem($enderecoRx, dado$)\;
+        \uSe{mensagem recebida}{
+            \uSe{$((enderecoRx - ID)- Direcao) = funcao[lerDados]$}{
+                $enderecoTx \gets enderecoRx$\;
+                enviaMensagem($enderecoTx, dado$)\;
+            }
+        }
+    }
+    \Inicio{
+        Configura $mascara$ para aceitar qualquer padrão de mensagem\;
+        Configura $filtro$ para receber mensagem somente do mestre\;
+        Configura $pinos$ do microcontrolador\;
+        \Enqto{$verdadeiro$}{
+            $dado \gets $ leSensor()\;
+            tratamentoDado($dado$)\; 
+        }
+    }
+    \caption{\footnotesize Algoritmo de endereçamento e comunicação do SDS - \textbf{Escravo}.}
+    \label{alg6}
+\end{algorithm}
+
+
+\section{Ambiente de testes e aplicação}
+
+Nessa seção serão descritos uma rede física, que é o ambiente de testes dos protocolos, e a aplicação que simula um ambiente de monitoramento de sensores. Para realizar os testes dos protocolos foi implementada uma rede de sensores com seis nós. Cada nó da rede possui um microcontrolador modelo dsPIC30F4013, um \textit{transceiver} CAN que promove a ligação do controlador CAN com o barramento físico, modelo MCP2551  (ambos da \textit{Microchip Technology}\texttrademark)~\cite{microchip1, microchip2}. Adicionalmente, utiliza-se um potenciômetro para emular a entrada de dados pelos sensores. 
+
+
+
+
+
+Apenas um dos seis nós possui um MAX485 (desenvolvido pela \textit{Maxim Integrated}\texttrademark~\cite{Maximintegrated1}) que é um \textit{transceiver} para prover a comunicação na interface RS-485. O MAX485 é conectado a outro, e esse segundo é conectado a um MAX232 (desenvolvido pela \textit{Texas Instruments}\texttrademark~\cite{Texas1}) que é um circuito integrado capaz de converter sinais de uma porta serial para a sinalização compatível com os microcontroladores. O MAX232 está presente no nó mestre e tem como finalidade a comunicação da rede CAN com um PC. O microcontrolador foi configurado para trabalhar com um \textit{clock} de $20$ Mhz, e tem suporte a um módulo CAN e dois módulos UART, para comunicação serial. O microcontrolador tem $1024$ bytes de memória EEPROM e $40$ pinos, dos quais $30$ são de I/O. A Figura ~\ref{esquema_rede} ilustra o esquema da rede de sensores. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{figuras/esquema_rede}
+    \caption{Esquema da rede CAN utilizada na avaliação.}
+    \label{esquema_rede}
+\end{figure}
+
+
+A aplicação usada para realizar os testes simula um cenário onde o mestre, para saber o valor de cada sensor da rede, envia uma mensagem de requisição aos seus escravos. Os nós escravos realizam a leitura do valor de saída do potenciômetro e fazem o tratamento do dado. Ao notar uma troca de sinal no pino do microcontrolador responsável pela leitura do barramento CAN, uma interrupção é gerada. Essa interrupção é responsável por enviar o valor, após feito o tratamento do valor absoluto, para o mestre da rede. 
+
+\begin{comment}
+As figuras~\ref{maq_mestre} e~\ref{maq_escravo} são máquinas de estados do mestre e do escravo, respectivamente.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.42\textwidth]{figuras/maq_mestres}
+    \caption{Máquina de estados do mestre.}
+    \label{maq_mestre}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.42\textwidth]{figuras/maq_escravos}
+    \caption{Máquina de estados do escravo.}
+    \label{maq_escravo}
+\end{figure}
+\end{comment}
+
+\section{Avaliação de desempenho}
+
+O desempenho de sistemas distribuídos pode ser influenciado por alterações nos seus parâmetros de configuração como taxa de transmissão dos dados, tamanho das mensagens, prioridade das mensagens e período de amostragem dos dispositivos~\cite{lian2002network}. Para balizar a avaliação de desempenho, utilizou-se as seguintes métricas:
+
+\begin{enumerate}
+\item \textit{Turnaround Time}: o tempo necessário para satisfazer um pedido (as medições serão realizadas a partir do momento que o mestre envia uma mensagem de requisição até o momento que ele recebe a resposta do último nó da rede). 
+
+\item \textit{Overhead}: medida da carga de dados auxiliares necessários à transmissão de dados de interesse real da aplicação (medidas nos sentidos mestre-escravo e  escravo-mestre). 
+
+\item Ocupação do Barramento: percentual de ocupação do barramento. 
+
+\item \textit{Throughput}: vazão, refletindo a quantidade de dados transmitidos em cada processo de requisição.
+\end{enumerate}
+
+Para se obter os dados do \textit{Turnaround} e Ocupação do Barramento utilizou-se um osciloscópio \textit{tektronix}\texttrademark (modelo TBS1062).   
+Um pino do microcontrolador foi configurado para receber valor um (sinal lógico alto) sempre que o mestre desse início ao processo de pedido de dados, e receber zero (sinal lógico baixo) durante o processo de envio e recebimento das mensagens. O objetivo foi ter um pico de sinal no pino sempre que o mestre desse início aos pedidos. Um atraso de 5 \textit{ms} foi adicionado entre a mudança de sinal no pino (tempo estabelecido como \textit{Turnaround Time} no osciloscópio).
+
+
+
+No primeiro cenário para medir o \textit{Turnaround} (Figura~\ref{semproc}), avaliou-se cinco configurações para cada protocolo variando-se de $1$ a $5$ escravos. Nessa avaliação, os escravos não realizam o tratamento do dado: assim que ocorre uma interrupção, o escravo transmite o dado do sensor para o mestre. Os resultados apresentados no gráfico desconsideram os 5 \textit{ms} de atraso adicionados ao processo. 
+
+
+Os resultados do segundo cenário, agora com cada escravo simulando um tempo de processamento, são apresentados na Figura~\ref{comproc}. Para simular o tempo de processamento, cada escravo incrementa uma variável de $0$ a $1000$. Vale ressaltar que para este cenário os 5 \textit{ms} também já foram subtraídos dos resultados. 
+
+\definecolor{bblue}{HTML}{4F81BD}
+\definecolor{rred}{HTML}{C0504D}
+\definecolor{ggreen}{HTML}{9BBB59}
+\definecolor{ppurple}{HTML}{6E1458}
+\definecolor{oorange}{HTML}{FB9B09}
+
+\begin{figure}
+    \begin{tikzpicture}
+        \begin{axis}[
+            width  = 0.6*\textwidth,
+            height = 5cm,
+            major x tick style = transparent,
+            ybar=2*\pgflinewidth,
+            bar width=14pt,
+            ymajorgrids = true,
+            ylabel = {Tempo (\textit{ms})},
+            symbolic x coords={CANopen,DeviceNet,SDS},
+            xtick = data,
+            scaled y ticks = false,
+            enlarge x limits=0.25,
+            ymin=0,
+            legend cell align=right,
+            legend style={
+                    at={(-0.5,0.5)},
+                    anchor=east,
+                    %anchor=right,
+                    column sep=1ex
+            }
+        ]
+            
+    
+            \addplot[style={ggreen,fill=ggreen,mark=none}]
+                coordinates {(CANopen,0.495) (DeviceNet,0.48) (SDS,0.49)};
+                
+            \addplot[style={bblue,fill=bblue,mark=none}]
+                coordinates {(CANopen,0.985) (DeviceNet,1.6) (SDS,0.97)};
+                
+            \addplot[style={rred,fill=rred,mark=none}]
+                coordinates {(CANopen,1.485) (DeviceNet,2.965) (SDS,1.45)};
+                 
+            \addplot[style={ppurple,fill=ppurple,mark=none}]
+                coordinates {(CANopen,1.965) (DeviceNet,3.72) (SDS,1.95)};
+                 
+            \addplot[style={oorange,fill=oorange,mark=none}]
+                coordinates {(CANopen, 2.455) (DeviceNet,5.62) (SDS,2.44)};
+    
+    
+            \legend{1 escravo,2 escravos,3 escravos, 4 escravos, 5 escravos}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{\textit{Turnadound Time} sem tempo de processamento.}\label{semproc}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}
+        \begin{axis}[
+            width  = 0.6*\textwidth,
+            height = 5cm,
+            major x tick style = transparent,
+            ybar=2*\pgflinewidth,
+            bar width=14pt,
+            ymajorgrids = true,
+            ylabel = {Tempo (\textit{ms})},
+            symbolic x coords={CANopen,DeviceNet,SDS},
+            xtick = data,
+            scaled y ticks = false,
+            enlarge x limits=0.25,
+            ymin=0,
+            legend cell align=right,
+            legend style={
+                    at={(-0.5,0.5)},
+                    anchor=east,
+                    %anchor=right,
+                    column sep=1ex
+            }
+        ]
+            
+    
+            \addplot[style={ggreen,fill=ggreen,mark=none}]
+                coordinates {(CANopen,1.7) (DeviceNet,0.84) (SDS,1.69)};
+                
+            \addplot[style={bblue,fill=bblue,mark=none}]
+                coordinates {(CANopen,3.39) (DeviceNet,2.16) (SDS,3.38)};
+                
+            \addplot[style={rred,fill=rred,mark=none}]
+                coordinates {(CANopen,5.08) (DeviceNet,3.48) (SDS,5.06)};
+                 
+            \addplot[style={ppurple,fill=ppurple,mark=none}]
+                coordinates {(CANopen,6.78) (DeviceNet,4.82) (SDS,6.76)};
+                 
+            \addplot[style={oorange,fill=oorange,mark=none}]
+                coordinates {(CANopen, 8.47) (DeviceNet,6) (SDS,8.4)};
+    
+    
+            \legend{1 escravo,2 escravos,3 escravos, 4 escravos, 5 escravos}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{\textit{Turnadound Time} com tempo de processamento.}\label{comproc}
+\end{figure}
+
+
+É possível observar que no primeiro cenário, onde não há processamento de dados no escravo, os protocolos CANopen e SDS têm resultados melhores que o protocolo DeviceNet. Porém, no segundo cenário, o protocolo DeviceNet tem melhor desempenho em relação aos demais. Isso ocorre em decorrência do DeviceNet permitir o processamento paralelo em seus escravos, uma vez que a mensagem de pedido atinge todos os escravos simultaneamente. Já no caso do CANopen e SDS, o mestre envia uma mensagem individual a cada escravo, aguardando resposta para só após enviar ao próximo escravo.
+
+
+Conforme descrito anteriormente, o microcontrolador empregado no sistema utiliza o padrão de mensagem CAN 2.0B. Considerando-se o melhor caso, ou seja, sem erros de transmissão, o \textit{Overhead} no sentido mestre-escravo é: 
+\begin{itemize}
+  \item Protocolo CANopen: 51 bits.
+  \item Protocolo DeviceNet: 116 bits.
+  \item Protocolo SDS: 51 bits.
+\end{itemize}
+
+A diferença considerável entre o protocolo DeviceNet e os demais se dá porque o protocolo DeviceNet utiliza o campo direcionado aos dados para fazer controle, assim os bits do campo dados somam-se à carga de controle da mensagem. Para mensagens transmitidas no sentido escravo-mestre, o \textit{Overhead} 
+dos três protocolos é equivalente e corresponde a $50$ bits.
+
+
+ 
+Nos protocolos CANopen e SDS é subtraído um bit, que é o campo RTR, responsável por sinalizar que a mensagem é um pedido. Como mensagens escravo-mestre são mensagens de resposta o bit RTR é desconsiderado. O mesmo acontece com o protocolo DeviceNet, que além de desconsiderar o bit RTR também não soma os bits relacionados aos dados que, nas mensagens de respostas, contêm informação útil à aplicação. 
+
+
+Em relação a ocupação do barramento (Figura~\ref{M1}), os protocolos CANopen e SDS apresentam resultados similares. Em um intervalo de $20$ \textit{ms} os protocolos CANopen e SDS mantiveram o barramento ocupado por $4,65$ e $4,43$ milissegundos, respectivamente. Um percentual de $23,25\%$ para o CANopen e $22,15\%$ para o protocolo SDS. No protocolo DeviceNet, em um mesmo intervalo de tempo, o barramento manteve-se ocupado por $13,5$ \textit{ms} (um percentual de $67,5\%$). 
+
+\definecolor{bblue}{HTML}{4F81BD}
+\definecolor{rred}{HTML}{C0504D}
+\definecolor{ggreen}{HTML}{9BBB59}
+
+
+\begin{figure}
+    \begin{tikzpicture}
+        \begin{axis}[
+            width  = 0.55*\textwidth,
+            height = 5.5cm,
+            major x tick style = transparent,
+            ybar=2*\pgflinewidth,
+            bar width=14pt,
+            ymajorgrids = true,
+            ylabel = {Tempo (\textit{ms})},
+            symbolic x coords={CANopen,DeviceNet,SDS},
+            xtick = data,
+            scaled y ticks = false,
+            enlarge x limits=0.25,
+            ymin=0,
+            legend cell align=right,
+            legend style={
+                    at={(-0.5,0.5)},
+                    anchor=east,
+                    %anchor=right,
+                    column sep=1ex
+            }
+        ]
+            \addplot[style={bblue,fill=bblue,mark=none}]
+                coordinates {(CANopen, 25) (DeviceNet,25) (SDS,25)};
+    
+            \addplot[style={rred,fill=rred,mark=none}]
+                 coordinates {(CANopen,4.65) (DeviceNet,13.5) (SDS,4.43)};
+    
+            \addplot[style={ggreen,fill=ggreen,mark=none}]
+                 coordinates {(CANopen,20.35) (DeviceNet,11.5) (SDS,20.57)};
+    
+    
+            \legend{Intervalo total,Barramento ocupado,Barramento livre}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Ocupação do barramento (em \textit{ms}) utilizando cinco escravos.} \label{M1}
+\end{figure}
+
+A ocupação do barramento no DeviceNet é maior porque ele utiliza mais bits de controle nas suas mensagens e, além da mensagem de pedido enviada pelo mestre, existem também mensagens de confirmação que o mestre envia após receber uma resposta. Nota-se que, enquanto um escravo não receber a mensagem de confirmação, ele continua escrevendo a mensagem de resposta no barramento. 
+
+%\section{Resultados do teste de \textit{Throughput}}
+
+Tendo-se como base os resultados da métrica \textit{Turnaround Time}, calculou-se a vazão da seguinte forma:
+
+\begin{equation*}
+ throughput = \frac{{\sum_{n=1}^5 {\frac{bits\_enviados_n + bits\_recebidos_n}{turnaround_n}}}}{5}
+\end{equation*}
+
+Onde: $bits\_enviados_n$ é a quantidade de bits que o mestre envia para o escravo $n$; $bits\_recebidos_n$ é a quantidade de bits que o mestre recebe como resposta do escravo $n$; \textit{$turnaround_n$} é o resultado da métrica \textit{Turnaround Time} correspondente ao escravo $n$. 
+
+A Tabela~\ref{vazao} apresenta os resultados obtidos para a vazão dos protocolos. Observa-se uma semelhança entre os resultados dos protocolo CANopen e SDS, notando-se uma vantagem do protocolo DeviceNet pois este apresentou melhores resultados no \textit{Turnaround Time} e manteve o barramento ocupado por mais tempo.
+
+% Please add the following required packages to your document preamble:
+% \usepackage[table,xcdraw]{xcolor}
+% If you use beamer only pass "xcolor=table" option, i.e. \documentclass[xcolor=table]{beamer}
+\begin{table}
+\small
+\centering
+\begin{tabular}{|l|c|}
+\hline
+{\color[HTML]{000000} Protocolo} & \multicolumn{1}{l|}{{\color[HTML]{000000} Vazão (Kbps)}} \\ \hline
+CANopen                          & 64,3                                                        \\ \hline
+DeviceNet                        & 178,3                                                       \\ \hline
+SDS                              & 64,5                                                        \\ \hline
+\end{tabular}
+\caption{Vazão em Kbps para cada protocolo.}\label{vazao}
+\end{table}
+
+
+\section{Conclusões}
+
+Em aplicações onde não é necessário tratamento de dados nos escravos (i.e., os escravos só precisam fazer a leitura de um sensor e enviar o valor para o mestre quando requisitados), os protocolos CANopen e SDS se destacam. Além de ter melhores resultados em termos de atraso, eles possuem um percentual menor de ocupação do barramento (por adotar uma estratégia mais simples, empregam menos dados de controle). 
+
+No entanto, para aplicações que fazem tratamento de dados nos escravos, o protocolo DeviceNet obteve melhores resultados, apesar de ter mais dados de controle e taxa de ocupação do barramento maior que os outros dois protocolos. Devido à sua estratégia \textit{Polled}, todos os escravos recebem a mensagem de pedido do mestre simultaneamente, tornando o tratamento de dados nos escravos um processo paralelo, enquanto o tratamento de dados nos protocolos CANopen e SDS é sequencial. 
+
+
+
+
+
+\bibliographystyle{sbc}
+{\scriptsize\bibliography{referencias}}
+%\bibliography{referencias}
+\end{document}
